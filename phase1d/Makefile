@@ -22,7 +22,7 @@ endif
 
 PHASE = phase1d
 
-VERSION = 1.0
+VERSION = 1.2
 
 # Set to version of Phase1a you want to use.
 PHASE1A_VERSION = 1.0
@@ -63,7 +63,7 @@ ifeq ($(shell uname),Darwin)
 	CFLAGS += -Wno-int-to-void-pointer-cast -Wno-extra-tokens -Wno-unused-label -Wno-unused-function
 else
 	OS = linux
-	CFLAGS += -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-unused-but-set-variable
+	CFLAGS += -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-unused-but-set-variable -Wno-unused-function
 	LDFLAGS += -static
 endif
 
@@ -118,7 +118,7 @@ tests: $(TOUTS)
 $(TESTS):   %: $(TARGET) %.o $(STUBS)
 	$(LD) $(LDFLAGS) -o $@ $@.o $(STUBS) $(LIBFLAGS)
 
-clean:
+clean::
 	rm -f $(COBJS) $(TARGET) $(TOBJS) $(TESTS) $(DEPS) $(TDEPS) $(TVS) *.out tests/*.out tests/*.err
 
 %.d: %.c
