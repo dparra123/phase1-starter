@@ -3,9 +3,9 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
-#include "usloss.h"
-#include "phase1.h"
-#include "phase1Int.h"
+#include <usloss.h>
+#include <phase1.h>
+#include <phase1Int.h>
 
 static void DeviceHandler(int type, void *arg);
 static void SyscallHandler(int type, void *arg);
@@ -17,14 +17,14 @@ void
 startup(int argc, char **argv)
 {
     int pid;
-    P1SemInit();
+    P1CondInit();
 
     // initialize device data structures
     // put device interrupt handlers into interrupt vector
     USLOSS_IntVec[USLOSS_SYSCALL_INT] = SyscallHandler;
 
     /* create the sentinel process */
-    int rc = P1_Fork("sentinel", sentinel, NULL, USLOSS_MIN_STACK, 6 , 0, &pid);
+    int rc = P1_Fork("sentinel", sentinel, NULL, USLOSS_MIN_STACK, 6 , &pid);
     assert(rc == P1_SUCCESS);
     // should not return
     assert(0);
@@ -33,29 +33,17 @@ startup(int argc, char **argv)
 } /* End of startup */
 
 int 
-P1_WaitDevice(int type, int unit, int *status) 
+P1_DeviceWait(int type, int unit, int *status) 
 {
     int     result = P1_SUCCESS;
     // disable interrupts
     // check kernel mode
-    // P device's semaphore
+    // use condition variable to wait for interrupt
     // set *status to device's status
     // restore interrupts
     return result;
 }
 
-int 
-P1_WakeupDevice(int type, int unit, int status, int abort) 
-{
-    int     result = P1_SUCCESS;
-    // disable interrupts
-    // check kernel mode
-    // save device's status to be used by P1_WaitDevice
-    // save abort to be used by P1_WaitDevice
-    // V device's semaphore 
-    // restore interrupts
-    return result;
-}
 
 static void
 DeviceHandler(int type, void *arg) 
@@ -74,7 +62,7 @@ sentinel (void *notused)
     int     rc;
 
     /* start the P2_Startup process */
-    rc = P1_Fork("P2_Startup", P2_Startup, NULL, 4 * USLOSS_MIN_STACK, 2 , 0, &pid);
+    rc = P1_Fork("P2_Startup", P2_Startup, NULL, 4 * USLOSS_MIN_STACK, 1, &pid);
     assert(rc == P1_SUCCESS);
 
     // enable interrupts
@@ -86,7 +74,7 @@ sentinel (void *notused)
 } /* End of sentinel */
 
 int 
-P1_Join(int tag, int *pid, int *status) 
+P1_Join(int *pid, int *status) 
 {
     int result = P1_SUCCESS;
     // disable interrupts
