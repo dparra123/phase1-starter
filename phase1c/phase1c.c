@@ -4,73 +4,145 @@
 #include <string.h>
 #include <assert.h>
 #include <sys/types.h>
-#include "usloss.h"
-#include "phase1Int.h"
+#include <usloss.h>
+#include <phase1Int.h>
 
-typedef struct Sem
+#define CHECKKERNEL() \
+    if ((USLOSS_PsrGet() & USLOSS_PSR_CURRENT_MODE) == 0) USLOSS_IllegalInstruction()
+
+typedef struct Lock
 {
-    char        name[P1_MAXNAME+1];
-    u_int       value;
+    char        name[P1_MAXNAME];
+    int         locked;
+    int         inuse;
     // more fields here
-} Sem;
+} Lock;
 
-static Sem sems[P1_MAXSEM];
+static Lock locks[P1_MAXLOCKS];
 
 void 
-P1SemInit(void) 
+P1LockInit(void) 
 {
-    P1ProcInit();
-    for (int i = 0; i < P1_MAXSEM; i++) {
-        sems[i].name[0] = '\0';
-        // initialize rest of sem here
+    static int initialized = FALSE;
+    CHECKKERNEL();
+    if (!initialized) {
+        P1ProcInit();
+        for (int i = 0; i < P1_MAXLOCKS; i++) {
+            locks[i].inuse = FALSE;
+            // initialize rest of lock here
+        }
     }
+    initialized = TRUE;
 }
 
-int P1_SemCreate(char *name, unsigned int value, int *sid)
+int P1_LockCreate(char *name, int *lid)
 {
     int result = P1_SUCCESS;
-    // check for kernel mode
+    CHECKKERNEL();
     // disable interrupts
     // check parameters
-    // find a free Sem and initialize it
+    // find a free Lock and initialize it
     // re-enable interrupts if they were previously enabled
     return result;
 }
 
-int P1_SemFree(int sid) 
+int P1_LockFree(int lid) 
 {
     int     result = P1_SUCCESS;
+    CHECKKERNEL();
     // more code here
     return result;
 }
 
-int P1_P(int sid) 
+int P1_Lock(int lid) 
 {
     int result = P1_SUCCESS;
-    // check for kernel mode
+    CHECKKERNEL();
     // disable interrupts
-    // while value == 0
+    // check if current process already holds lock
+    // while lock is already held
     //      set state to P1_STATE_BLOCKED
-    // value--
+    //      P1Dispatch(FALSE);
+    // record that lock is now held by this process
     // re-enable interrupts if they were previously enabled
     return result;
 }
 
-int P1_V(int sid) 
+int P1_Unlock(int lid) 
 {
     int result = P1_SUCCESS;
-    // check for kernel mode
+    CHECKKERNEL();
     // disable interrupts
-    // value++
-    // if a process is waiting for this semaphore
+    // check if current process holds lock
+    // mark lock as unlocked
+    // if a process is waiting for this lock
     //      set the process's state to P1_STATE_READY
+    //      P1Dispatch(FALSE);
     // re-enable interrupts if they were previously enabled
     return result;
 }
 
-int P1_SemName(int sid, char *name) {
+int P1_LockName(int lid, char *name, int len) {
     int result = P1_SUCCESS;
+    CHECKKERNEL();
     // more code here
     return result;
 }
 
+/*
+ * Condition variable functions.
+ */
+
+void P1CondInit(void) {
+    CHECKKERNEL();
+    // more code here
+}
+
+int P1_CondCreate(char *name, int lid, int *vid) {
+    int result = P1_SUCCESS;
+    CHECKKERNEL();
+    // more code here
+    return result;
+}
+
+int P1_CondFree(int vid) {
+    int result = P1_SUCCESS;
+    CHECKKERNEL();
+    // more code here
+    return result;
+}
+
+int P1_Wait(int vid) {
+    int result = P1_SUCCESS;
+    CHECKKERNEL();
+    // more code here
+    return result;
+}
+
+int P1_Signal(int vid) {
+    int result = P1_SUCCESS;
+    CHECKKERNEL();
+    // more code here
+    return result;
+}
+
+int P1_Broadcast(int vid) {
+    int result = P1_SUCCESS;
+    CHECKKERNEL();
+    // more code here
+    return result;
+}
+
+int P1_NakedSignal(int vid) {
+    int result = P1_SUCCESS;
+    CHECKKERNEL();
+    // more code here
+    return result;
+}
+
+int P1_CondName(int vid, char *name, int len) {
+    int result = P1_SUCCESS;
+    CHECKKERNEL();
+    // more code here
+    return result;
+}
