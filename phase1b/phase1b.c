@@ -36,7 +36,7 @@ int P1_GetPid(void)
     return 0;
 }
 
-int P1_Fork(char *name, int (*func)(void*), void *arg, int stacksize, int priority, int tag, int *pid ) 
+int P1_Fork(char *name, int (*func)(void*), void *arg, int stacksize, int priority, int *pid ) 
 {
     int result = P1_SUCCESS;
 
@@ -67,7 +67,7 @@ P1_Quit(int status)
 
 
 int 
-P1GetChildStatus(int tag, int *cpid, int *status) 
+P1GetChildStatus(int *cpid, int *status) 
 {
     int result = P1_SUCCESS;
     // do stuff here
@@ -75,7 +75,7 @@ P1GetChildStatus(int tag, int *cpid, int *status)
 }
 
 int
-P1SetState(int pid, P1_State state, int sid) 
+P1SetState(int pid, P1_State state, int lid, int vid) 
 {
     int result = P1_SUCCESS;
     // do stuff here
