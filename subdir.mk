@@ -1,9 +1,7 @@
 # This is a sample Makefile for Phase 1.
-# You may change this, e.g. to add new test cases, but keep in mind we will compile
-# your phase1.c using our own copy of this file.
 #
-#       make            (makes libphase3.a and all tests)
-#        make phase3     ditto
+#       make            (makes all libraries and all tests)
+#		make install	(installs library in ~/lib and headers in ~/include
 #
 #       make testN      (makes testN)
 #       make testN.out  (runs testN and puts output in testN.out)
@@ -44,15 +42,20 @@ LIBS = -lusloss$(USLOSS_VERSION) \
 	   -luser$(USLOSS_VERSION) \
 	   -ldisk$(USLOSS_VERSION)
 
+LDFLAGS += -L. -L$(PREFIX)/cs452/lib -L$(PREFIX)/lib 
+
 ifeq ($(PHASE), phase1b)
 	LIBS += -lphase1a-$(PHASE1A_VERSION)
+	LDFLAGS += -L../phase1a
 else ifeq ($(PHASE), phase1c)
 	LIBS += -lphase1a-$(PHASE1A_VERSION)
 	LIBS += -lphase1b-$(PHASE1B_VERSION)
+	LDFLAGS += -L../phase1a -L../phase1b
 else ifeq ($(PHASE), phase1d)
 	LIBS += -lphase1a-$(PHASE1A_VERSION)
 	LIBS += -lphase1b-$(PHASE1B_VERSION)
 	LIBS += -lphase1c-$(PHASE1C_VERSION)
+	LDFLAGS += -L../phase1a -L../phase1b -L../phase1c
 endif
 
 LIBS += -l$(PHASE)-$(VERSION) 
@@ -83,7 +86,6 @@ CC=gcc
 LD=gcc
 AR=ar    
 CFLAGS += $(INCLUDES) $(DEFINES)
-LDFLAGS += -L. -L$(PREFIX)/cs452/lib -L$(PREFIX)/lib 
 COBJS = ${SRCS:.c=.o}
 DEPS = ${COBJS:.o=.d}
 TSRCS = {$TESTS:=.c}
