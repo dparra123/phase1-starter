@@ -4,7 +4,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#if PHASE != PHASE1A
 static char *states[] = {"Free", "Run", "Ready", "Quit", "Block", "Join"};
+#endif
 
 static char *errors[] = {
     "Success",
@@ -44,6 +46,7 @@ ErrorCodeToString(int code)
 
 
 
+#if PHASE != PHASE1A
 
 static void
 DumpProcesses(void)
@@ -62,6 +65,8 @@ DumpProcesses(void)
         }
     }
 }
+
+#endif
 
 static char *
 MakeName(char *prefix, int suffix)
