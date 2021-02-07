@@ -12,7 +12,7 @@ Phase 1b
 typedef struct PCB {
     int             cid;                // context's ID
     int             cpuTime;            // process's running time
-    char            name[P1_MAXNAME+1]; // process's name
+    char            name[P1_MAXNAME];   // process's name
     int             priority;           // process's priority
     P1_State        state;              // state of the PCB
     // more fields here
