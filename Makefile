@@ -3,6 +3,7 @@
 #		make install	(installs all libraries in ~/lib and headers in ~/include
 #		make phase1x	(makes library for phase1x)
 #		make phase1x-install (installs phase1x library in ~/lib and headers in ~/include
+#		make phase1x-tests (makes phase1x and runs tests in phase1x/tests)
 #
 # The build will look for the phase libraries and USLOSS in the following locations in this order:
 #
@@ -20,10 +21,11 @@
 TOP_PHASE = phase1
 SUBDIRS=$(wildcard $(TOP_PHASE)[a-d])
 INSTALLS=$(patsubst %, %-install, $(SUBDIRS))
+TESTS=$(patsubst %, %-tests, $(SUBDIRS))
 
 HDRS=$(TOP_PHASE).h $(TOP_PHASE)Int.h
 
-.PHONY: $(SUBDIRS) all clean install subdirs $(INSTALLS)
+.PHONY: $(SUBDIRS) all clean install subdirs $(INSTALLS) $(TESTS)
 
 all: $(SUBDIRS)
 
@@ -34,7 +36,7 @@ clean: $(SUBDIRS)
 
 install: $(INSTALLS)
 
-tests: $(SUBDIRS)
+tests: $(TESTS)
 
 tar:
 	(cd ..; gnutar cvzf ~/Downloads/$(TOP_PHASE)-starter.tgz --exclude=.git --exclude="*.dSYM" $(TOP_PHASE)-starter)
@@ -45,3 +47,6 @@ $(SUBDIRS):
 $(INSTALLS):
 	$(MAKE) -C $(patsubst %-install, %, $@) install
 	install $(HDRS) ~/include
+
+$(TESTS):
+	$(MAKE) -C $(patsubst %-tests, %, $@) tests
