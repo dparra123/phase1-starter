@@ -128,7 +128,7 @@ tests: $(TOUTS)
 % : %.o
 
 %.out: %
-	./$< 1> $@ 2>&1
+	./$< 1> $@ --virtual-time 2>&1
 
 $(TESTS):   %: $(TARGET) %.o $(STUBS)
 	$(LD) $(LDFLAGS) -o $@ $@.o $(STUBS) $(LIBFLAGS)
