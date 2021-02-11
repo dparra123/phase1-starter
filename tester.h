@@ -76,20 +76,53 @@ MakeName(char *prefix, int suffix)
     return name;
 }
 
-#define PASSED() { \
+#define PASSED_MSG() { \
     USLOSS_Console("TEST PASSED.\n"); \
+}
+
+#define PASSED() { \
+    PASSED_MSG(); \
     USLOSS_Halt(0); \
 }
 
-#define FAILED(val, expected) { \
+#define FAILED_MSG(val, expected) { \
     USLOSS_Console("%s:%d: %d != %d.\n", __FUNCTION__, __LINE__, (val), (expected)); \
     USLOSS_Console("TEST FAILED.\n"); \
-    USLOSS_Halt(0); \
+}
+
+#define FAILED(val, expected) { \
+    FAILED_MSG((val), (expected)); \
+    USLOSS_Halt(1); \
+}
+
+#define TEST_MSG(val, expected) { \
+    if ((val) != (expected)) { \
+        FAILED_MSG((val), (expected)); \
+    } \
 }
 
 #define TEST(val, expected) { \
     if ((val) != (expected)) { \
         FAILED((val), (expected)); \
+    } \
+}
+
+// use these in the finish function because you can't call Halt from finish
+
+#define PASSED_FINISH() { \
+    PASSED_MSG(); \
+    return; \
+}
+
+#define FAILED_FINISH(val, expected) { \
+    FAILED_MSG((val), (expected)); \
+    return; \
+}
+
+#define TEST_FINISH(val, expected) { \
+    if ((val) != (expected)) { \
+        FAILED_MSG((val), (expected)); \
+        return; \
     } \
 }
 
