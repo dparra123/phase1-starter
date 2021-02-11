@@ -26,6 +26,7 @@ void    P1EnableInterrupts(void);
 // Phase 1b
 
 void    P1ProcInit(void);
+void    P1CondInit(void);
 int     P1GetChildStatus(int *cpid, int *status) CHECKRETURN;
 int     P1SetState(int pid, P1_State state, int lid, int vid) CHECKRETURN;
 void    P1Dispatch(int rotate);
