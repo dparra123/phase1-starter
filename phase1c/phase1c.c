@@ -10,11 +10,15 @@
 #define CHECKKERNEL() \
     if ((USLOSS_PsrGet() & USLOSS_PSR_CURRENT_MODE) == 0) USLOSS_IllegalInstruction()
 
+#define FREE 0
+#define BUSY 1
+
 typedef struct Lock
 {
-    char        name[P1_MAXNAME];
-    int         locked;
     int         inuse;
+    char        name[P1_MAXNAME];
+    int         state; // BUSY or FREE
+    int         pid; 
     // more fields here
 } Lock;
 
@@ -23,17 +27,12 @@ static Lock locks[P1_MAXLOCKS];
 void 
 P1LockInit(void) 
 {
-    static int initialized = FALSE;
     CHECKKERNEL();
-    if (!initialized) {
-        P1ProcInit();
-        for (int i = 0; i < P1_MAXLOCKS; i++) {
-            locks[i].inuse = FALSE;
-            // initialize rest of lock here
-        }
+    for (int i = 0; i < P1_MAXLOCKS; i++) {
+        locks[i].inuse = FALSE;
     }
-    initialized = TRUE;
 }
+
 
 int P1_LockCreate(char *name, int *lid)
 {
@@ -41,8 +40,8 @@ int P1_LockCreate(char *name, int *lid)
     CHECKKERNEL();
     // disable interrupts
     // check parameters
-    // find a free Lock and initialize it
-    // re-enable interrupts if they were previously enabled
+    // find an unused Lock and initialize it
+    // restore interrupts
     return result;
 }
 
@@ -50,7 +49,10 @@ int P1_LockFree(int lid)
 {
     int     result = P1_SUCCESS;
     CHECKKERNEL();
-    // more code here
+    // disable interrupts
+    // check if any processes are waiting on lock
+    // mark lock as unused and clean up any state
+    // restore interrupts
     return result;
 }
 
@@ -58,27 +60,43 @@ int P1_Lock(int lid)
 {
     int result = P1_SUCCESS;
     CHECKKERNEL();
-    // disable interrupts
-    // check if current process already holds lock
-    // while lock is already held
-    //      set state to P1_STATE_BLOCKED
-    //      P1Dispatch(FALSE);
-    // record that lock is now held by this process
-    // re-enable interrupts if they were previously enabled
+    /*********************
+
+    Pseudo-code from the lecture notes.
+
+    while(1) {
+          DisableInterrupts();
+          if (lock->state == FREE) {
+              lock->state = BUSY;
+              break;
+          }
+          Mark process BLOCKED, add to lock->q
+          RestoreInterrupts();
+          Dispatcher();
+    }
+    RestoreInterrupts();
+
+    *********************/
+
     return result;
 }
+
 
 int P1_Unlock(int lid) 
 {
     int result = P1_SUCCESS;
     CHECKKERNEL();
-    // disable interrupts
-    // check if current process holds lock
-    // mark lock as unlocked
-    // if a process is waiting for this lock
-    //      set the process's state to P1_STATE_READY
-    //      P1Dispatch(FALSE);
-    // re-enable interrupts if they were previously enabled
+    /*********************
+
+      DisableInterrupts();
+      lock->state = FREE;
+      if (lock->q is not empty) {
+          Remove process from lock->q, mark READY
+          Dispatcher();
+      }
+      RestoreInterrupts();
+
+    *********************/
     return result;
 }
 
@@ -93,9 +111,21 @@ int P1_LockName(int lid, char *name, int len) {
  * Condition variable functions.
  */
 
+typedef struct Condition
+{
+    int         inuse;
+    char        name[P1_MAXNAME];
+    int         lock;  // lock associated with this variable
+    // more fields here
+} Condition;
+
+static Condition conditions[P1_MAXCONDS];
+
 void P1CondInit(void) {
     CHECKKERNEL();
-    // more code here
+    for (int i = 0; i < P1_MAXCONDS; i++) {
+        conditions[i].inuse = FALSE;
+    }
 }
 
 int P1_CondCreate(char *name, int lid, int *vid) {
@@ -112,24 +142,55 @@ int P1_CondFree(int vid) {
     return result;
 }
 
+
 int P1_Wait(int vid) {
     int result = P1_SUCCESS;
     CHECKKERNEL();
-    // more code here
+    /*********************
+
+      DisableInterrupts();
+      Confirm lock is held
+      cv->waiting++;
+      Release(cv->lock);
+      Make process BLOCKED, add to cv->q
+      Dispatcher();
+      Acquire(cv->lock);
+      RestoreInterrupts();
+
+    *********************/
     return result;
 }
 
 int P1_Signal(int vid) {
     int result = P1_SUCCESS;
-    CHECKKERNEL();
-    // more code here
+        CHECKKERNEL();
+    /*********************
+
+      DisableInterrupts();
+      Confirm lock is held 
+      if (cv->waiting > 0) {
+        Remove process from cv->q, make READY
+        cv->waiting--;
+        Dispatcher();
+      }
+      RestoreInterrupts();
+    *********************/    
     return result;
 }
 
 int P1_Broadcast(int vid) {
     int result = P1_SUCCESS;
     CHECKKERNEL();
-    // more code here
+    /*********************
+      DisableInterrupts();
+      Confirm lock is held 
+      while (cv->waiting > 0) {
+        Remove process from cv->q, make READY
+        cv->waiting--;
+        Dispatcher();
+      }
+      RestoreInterrupts();
+    *********************/    
     return result;
 }
 
