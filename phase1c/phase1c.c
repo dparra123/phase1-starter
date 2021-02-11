@@ -28,6 +28,7 @@ void
 P1LockInit(void) 
 {
     CHECKKERNEL();
+    P1ProcInit();
     for (int i = 0; i < P1_MAXLOCKS; i++) {
         locks[i].inuse = FALSE;
     }
@@ -123,6 +124,7 @@ static Condition conditions[P1_MAXCONDS];
 
 void P1CondInit(void) {
     CHECKKERNEL();
+    P1LockInit();
     for (int i = 0; i < P1_MAXCONDS; i++) {
         conditions[i].inuse = FALSE;
     }
