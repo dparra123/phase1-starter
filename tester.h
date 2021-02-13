@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#if PHASE != PHASE1A
+#ifndef PHASE1A
 static char *states[] = {"Free", "Run", "Ready", "Quit", "Block", "Join"};
 #endif
 
@@ -44,9 +44,7 @@ ErrorCodeToString(int code)
     }
 }
 
-
-
-#if PHASE != PHASE1A
+#ifndef PHASE1A
 
 static void
 DumpProcesses(void)
@@ -101,11 +99,21 @@ MakeName(char *prefix, int suffix)
     } \
 }
 
-#define TEST(val, expected) { \
+#define TEST_EQ(val, expected) { \
     if ((val) != (expected)) { \
         FAILED((val), (expected)); \
     } \
 }
+
+#define TEST_NE(val, expected) { \
+    if ((val) == (expected)) { \
+        FAILED((val), (expected)); \
+    } \
+}
+
+// for backwards compatiblity
+#define TEST(val, expected) TEST_EQ((val), (expected))
+
 
 // use these in the finish function because you can't call Halt from finish
 
