@@ -84,7 +84,8 @@ CFLAGS += -DOS=$(OS)
 
 CC=gcc
 LD=gcc
-AR=ar    
+AR=ar   
+RANLIB=ranlib 
 CFLAGS += $(INCLUDES) $(DEFINES)
 COBJS = ${SRCS:.c=.o}
 DEPS = ${COBJS:.o=.d}
@@ -114,6 +115,8 @@ $(PHASE): $(TARGET) $(TESTS)
 
 $(TARGET):  $(COBJS)
 	$(AR) -r $@ $^
+	$(RANLIB) $@
+
 
 install: $(TARGET)
 	mkdir -p ~/lib
