@@ -69,7 +69,7 @@ DumpProcesses(void)
 static char *
 MakeName(char *prefix, int suffix)
 {
-    static char name[P1_MAXNAME+1];
+    static char name[P1_MAXNAME];
     snprintf(name, sizeof(name), "%s%d", prefix, suffix);
     return name;
 }
